@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { getMapMarkers, getPhotoDetail, getPhotoTags, getWaterfallPhotos } from '../api/photos'
 import GlobeView from '../components/GlobeView.vue'
 import MapView from '../components/MapView.vue'
@@ -30,6 +30,8 @@ const modalError = ref('')
 const modalDetail = ref<PhotoDetail | null>(null)
 const modalTags = ref<string[]>([])
 const showUploadModal = ref(false)
+let viewportLoadTimer: ReturnType<typeof window.setTimeout> | null = null
+const VIEWPORT_LOAD_DELAY_MS = 180
 
 const isMapMode = computed(() => mode.value === 'map')
 
@@ -95,7 +97,13 @@ async function loadMarkers(): Promise<void> {
 function onViewportChange(nextViewport: MapViewport): void {
   viewport.value = nextViewport
   if (mapDimension.value === '2d') {
-    void loadMarkers()
+    if (viewportLoadTimer) {
+      window.clearTimeout(viewportLoadTimer)
+    }
+    viewportLoadTimer = window.setTimeout(() => {
+      void loadMarkers()
+      viewportLoadTimer = null
+    }, VIEWPORT_LOAD_DELAY_MS)
   }
 }
 
@@ -186,6 +194,13 @@ onMounted(async () => {
 watch(mapDimension, () => {
   if (isMapMode.value) {
     void loadMarkers()
+  }
+})
+
+onBeforeUnmount(() => {
+  if (viewportLoadTimer) {
+    window.clearTimeout(viewportLoadTimer)
+    viewportLoadTimer = null
   }
 })
 </script>

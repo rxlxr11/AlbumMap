@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import {
+  ArcGisMapServerImageryProvider,
   Cartesian2,
   Cartesian3,
   Color,
   defined,
   DistanceDisplayCondition,
   Entity,
+  ImageryLayer,
+  LabelStyle,
   NearFarScalar,
   ScreenSpaceEventHandler,
   ScreenSpaceEventType,
@@ -52,23 +55,36 @@ function syncEntities(): void {
       position: Cartesian3.fromDegrees(marker.longitude, marker.latitude, 18000),
       billboard: {
         image: marker.thumbnail_url,
-        width: 66,
-        height: 66,
+        width: 72,
+        height: 72,
         verticalOrigin: VerticalOrigin.BOTTOM,
-        scaleByDistance: new NearFarScalar(2.0e5, 1.0, 2.8e7, 0.3),
-        translucencyByDistance: new NearFarScalar(1.5e5, 1.0, 2.6e7, 0.25),
+        color: Color.WHITE.withAlpha(0.98),
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        scaleByDistance: new NearFarScalar(2.0e5, 1.08, 2.8e7, 0.58),
+        translucencyByDistance: new NearFarScalar(1.5e5, 1.0, 2.6e7, 0.62),
         distanceDisplayCondition: new DistanceDisplayCondition(0, 4.2e7),
+      },
+      point: {
+        pixelSize: 11,
+        color: Color.fromCssColorString('#1e3a8a').withAlpha(0.92),
+        outlineColor: Color.WHITE.withAlpha(0.95),
+        outlineWidth: 2,
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
       },
       label: {
         text: marker.note ? marker.note.slice(0, 12) : '照片',
         showBackground: true,
-        backgroundColor: Color.fromCssColorString('#0f172a').withAlpha(0.66),
+        backgroundColor: Color.fromCssColorString('#0f172a').withAlpha(0.82),
         fillColor: Color.WHITE,
-        font: '11px sans-serif',
-        pixelOffset: new Cartesian2(0, -44),
+        outlineColor: Color.fromCssColorString('#1d4ed8').withAlpha(0.9),
+        outlineWidth: 1.4,
+        style: LabelStyle.FILL_AND_OUTLINE,
+        font: '600 12px sans-serif',
+        pixelOffset: new Cartesian2(0, -54),
         verticalOrigin: VerticalOrigin.BOTTOM,
-        scaleByDistance: new NearFarScalar(2.0e5, 1.0, 2.4e7, 0.6),
-        translucencyByDistance: new NearFarScalar(2.0e5, 1.0, 2.8e7, 0.0),
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        scaleByDistance: new NearFarScalar(2.0e5, 1.0, 2.4e7, 0.7),
+        translucencyByDistance: new NearFarScalar(2.0e5, 1.0, 2.8e7, 0.55),
       },
     })
   }
@@ -145,6 +161,9 @@ onMounted(() => {
 
   try {
     viewer = new Viewer(globeRootRef.value, {
+      baseLayer: ImageryLayer.fromProviderAsync(
+        ArcGisMapServerImageryProvider.fromUrl('https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer'),
+      ),
       animation: false,
       timeline: false,
       geocoder: false,
@@ -155,14 +174,29 @@ onMounted(() => {
       fullscreenButton: false,
       infoBox: false,
       selectionIndicator: false,
-      requestRenderMode: true,
-      maximumRenderTimeChange: Infinity,
-      useBrowserRecommendedResolution: false,
+      requestRenderMode: false,
+      useBrowserRecommendedResolution: true,
     })
 
-    viewer.resolutionScale = Math.min(1.35, window.devicePixelRatio || 1)
+    viewer.resolutionScale = Math.min(1.4, window.devicePixelRatio || 1)
     viewer.scene.postProcessStages.fxaa.enabled = true
-    viewer.scene.globe.maximumScreenSpaceError = 2.8
+    viewer.scene.globe.maximumScreenSpaceError = 1.8
+    viewer.scene.globe.baseColor = Color.fromCssColorString('#0a1c16')
+    viewer.scene.globe.showGroundAtmosphere = false
+    viewer.scene.fog.enabled = false
+    viewer.scene.highDynamicRange = false
+    const baseImageryLayer = viewer.imageryLayers.get(0)
+    baseImageryLayer.brightness = 0.72
+    baseImageryLayer.contrast = 1.2
+    baseImageryLayer.saturation = 0.78
+    baseImageryLayer.gamma = 0.92
+    baseImageryLayer.hue = -0.08
+    const skyAtmosphere = viewer.scene.skyAtmosphere
+    if (skyAtmosphere) {
+      skyAtmosphere.hueShift = -0.08
+      skyAtmosphere.saturationShift = -0.28
+      skyAtmosphere.brightnessShift = -0.24
+    }
     viewer.scene.screenSpaceCameraController.minimumZoomDistance = 230000
     viewer.scene.screenSpaceCameraController.maximumZoomDistance = 125000000
     viewer.scene.screenSpaceCameraController.inertiaSpin = 0.65
@@ -190,7 +224,6 @@ watch(
   () => {
     syncEntities()
   },
-  { deep: true },
 )
 
 onBeforeUnmount(() => {
@@ -209,7 +242,7 @@ onBeforeUnmount(() => {
     :class="isFullscreen ? 'h-screen rounded-none border-none' : ''"
   >
     <div ref="globeRootRef" class="h-full w-full" />
-    <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(147,197,253,0.22),rgba(2,6,23,0.12)_34%,rgba(2,6,23,0)_56%)]" />
+    <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(30,58,138,0.2),rgba(12,74,44,0.15)_38%,rgba(2,6,23,0)_62%)]" />
 
     <div class="absolute right-4 top-4 z-10 flex flex-col gap-2">
       <button

@@ -57,6 +57,9 @@ export class GoogleAdapter implements MapAdapter {
     this.map.setZoom((this.map.getZoom() ?? 2) - 1)
   }
 
+  setBaseLayer(): void {
+  }
+
   getViewport(): MapViewport | null {
     if (!this.map) {
       return null

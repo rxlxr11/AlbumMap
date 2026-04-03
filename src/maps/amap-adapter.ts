@@ -14,12 +14,21 @@ type AMapApi = {
   Marker: new (options: Record<string, unknown>) => AMapMarker
   InfoWindow: new (options: Record<string, unknown>) => AMapInfoWindow
   Pixel: new (x: number, y: number) => unknown
+  TileLayer: AMapTileLayerCtor & {
+    Satellite: new (options?: Record<string, unknown>) => AMapTileLayer
+    RoadNet: new (options?: Record<string, unknown>) => AMapTileLayer
+  }
 }
+
+type AMapTileLayer = Record<string, never>
+
+type AMapTileLayerCtor = new (options?: Record<string, unknown>) => AMapTileLayer
 
 type AMapMap = {
   setFitView: () => void
   setZoom: (zoom: number) => void
   getZoom: () => number
+  setLayers: (layers: AMapTileLayer[]) => void
   getBounds: () => {
     getSouthWest: () => { getLat: () => number; getLng: () => number }
     getNorthEast: () => { getLat: () => number; getLng: () => number }
@@ -46,6 +55,9 @@ const DEFAULT_AMAP_SECURITY_CODE = 'e4dedcf2a28330b094c5ce0ec4b03a91'
 export class AMapAdapter implements MapAdapter {
   private map: AMapMap | null = null
   private amap: AMapApi | null = null
+  private baseLayer: AMapTileLayer | null = null
+  private satelliteLayer: AMapTileLayer | null = null
+  private roadNetLayer: AMapTileLayer | null = null
 
   async init(container: HTMLElement, center: { lat: number; lng: number }, zoom: number): Promise<void> {
     const key = import.meta.env.VITE_AMAP_KEY || DEFAULT_AMAP_KEY
@@ -67,8 +79,23 @@ export class AMapAdapter implements MapAdapter {
       viewMode: '3D',
       zoom,
       center: [center.lng, center.lat],
-      mapStyle: 'amap://styles/normal',
     })
+
+    this.baseLayer = new this.amap.TileLayer()
+    this.satelliteLayer = new this.amap.TileLayer.Satellite()
+    this.roadNetLayer = new this.amap.TileLayer.RoadNet()
+    this.setBaseLayer('satellite')
+  }
+
+  setBaseLayer(layer: 'satellite' | 'roadnet'): void {
+    if (!this.map || !this.baseLayer || !this.satelliteLayer || !this.roadNetLayer) {
+      return
+    }
+    if (layer === 'satellite') {
+      this.map.setLayers([this.satelliteLayer, this.roadNetLayer])
+      return
+    }
+    this.map.setLayers([this.baseLayer, this.roadNetLayer])
   }
 
   setMarkers(markers: MarkerPoint[], onClick: (markerId: string) => void): void {
@@ -151,5 +178,8 @@ export class AMapAdapter implements MapAdapter {
     this.map?.destroy()
     this.map = null
     this.amap = null
+    this.baseLayer = null
+    this.satelliteLayer = null
+    this.roadNetLayer = null
   }
 }

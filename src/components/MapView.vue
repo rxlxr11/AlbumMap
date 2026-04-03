@@ -21,6 +21,9 @@ const adapter = ref<MapAdapter | null>(null)
 const loading = ref(true)
 const error = ref('')
 const isFullscreen = ref(false)
+const amapLayer = ref<'satellite' | 'roadnet'>('satellite')
+
+const isAmapProvider = computed(() => props.provider === 'amap')
 
 function onFullscreenChange(): void {
   isFullscreen.value = Boolean(document.fullscreenElement)
@@ -53,6 +56,11 @@ function zoomOut(): void {
   emitViewport()
 }
 
+function setAmapLayer(layer: 'satellite' | 'roadnet'): void {
+  amapLayer.value = layer
+  adapter.value?.setBaseLayer?.(layer)
+}
+
 async function toggleFullscreen(): Promise<void> {
   const scope = props.fullscreenScopeId ? document.getElementById(props.fullscreenScopeId) : null
   const target = scope ?? containerRef.value
@@ -79,6 +87,9 @@ onMounted(async () => {
   try {
     adapter.value = createMapAdapter(props.provider)
     await adapter.value.init(rootRef.value, { lat: 31.2304, lng: 121.4737 }, 4)
+    if (isAmapProvider.value) {
+      adapter.value.setBaseLayer?.(amapLayer.value)
+    }
     adapter.value.setMarkers(markerPoints.value, (id) => emit('markerClick', id))
     emitViewport()
   } catch (err) {
@@ -114,6 +125,24 @@ onBeforeUnmount(() => {
     <div ref="rootRef" class="h-full w-full" />
 
     <div class="absolute right-4 top-4 z-10 flex flex-col gap-2">
+      <div v-if="isAmapProvider" class="flex overflow-hidden rounded-full bg-white/90 p-1 shadow">
+        <button
+          class="rounded-full px-3 py-1 text-xs font-semibold"
+          :class="amapLayer === 'satellite' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-white'"
+          type="button"
+          @click="setAmapLayer('satellite')"
+        >
+          卫星图
+        </button>
+        <button
+          class="rounded-full px-3 py-1 text-xs font-semibold"
+          :class="amapLayer === 'roadnet' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-white'"
+          type="button"
+          @click="setAmapLayer('roadnet')"
+        >
+          路网图
+        </button>
+      </div>
       <button
         class="rounded-full bg-white/90 px-3 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-white"
         type="button"

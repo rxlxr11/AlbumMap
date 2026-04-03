@@ -14,10 +14,18 @@ type AMapApi = {
   Map: new (container: HTMLElement, options: Record<string, unknown>) => AMapMap
   Marker: new (options: Record<string, unknown>) => AMapMarker
   Geocoder: new (options?: Record<string, unknown>) => AMapGeocoder
+  TileLayer: AMapTileLayerCtor & {
+    Satellite: new (options?: Record<string, unknown>) => AMapTileLayer
+    RoadNet: new (options?: Record<string, unknown>) => AMapTileLayer
+  }
 }
+
+type AMapTileLayer = Record<string, never>
+type AMapTileLayerCtor = new (options?: Record<string, unknown>) => AMapTileLayer
 
 type AMapMap = {
   setCenter: (center: [number, number]) => void
+  setLayers: (layers: AMapTileLayer[]) => void
   on: (eventName: string, callback: (event: { lnglat: { getLng: () => number; getLat: () => number } }) => void) => void
   destroy: () => void
 }
@@ -65,11 +73,27 @@ const mapRootRef = ref<HTMLElement | null>(null)
 const query = ref(props.locationName || props.address || '')
 const searchError = ref('')
 const searching = ref(false)
+const amapLayer = ref<'satellite' | 'roadnet'>('satellite')
 
 let amap: AMapApi | null = null
 let map: AMapMap | null = null
 let marker: AMapMarker | null = null
 let geocoder: AMapGeocoder | null = null
+let baseLayer: AMapTileLayer | null = null
+let satelliteLayer: AMapTileLayer | null = null
+let roadNetLayer: AMapTileLayer | null = null
+
+function setAmapLayer(layer: 'satellite' | 'roadnet'): void {
+  amapLayer.value = layer
+  if (!map || !baseLayer || !satelliteLayer || !roadNetLayer) {
+    return
+  }
+  if (layer === 'satellite') {
+    map.setLayers([satelliteLayer, roadNetLayer])
+    return
+  }
+  map.setLayers([baseLayer, roadNetLayer])
+}
 
 const amapKey = import.meta.env.VITE_AMAP_KEY || '174814bd5c505da998169b604aaf0501'
 const amapSecret = import.meta.env.VITE_AMAP_SECRET || 'e4dedcf2a28330b094c5ce0ec4b03a91'
@@ -164,6 +188,10 @@ onMounted(async () => {
     zoom: 12,
     center: [props.longitude, props.latitude],
   })
+  baseLayer = new amap.TileLayer()
+  satelliteLayer = new amap.TileLayer.Satellite()
+  roadNetLayer = new amap.TileLayer.RoadNet()
+  setAmapLayer('satellite')
   marker = new amap.Marker({ position: [props.longitude, props.latitude], map })
   geocoder = new amap.Geocoder({ city: '全国', radius: 1500, extensions: 'all' })
 
@@ -191,6 +219,9 @@ onBeforeUnmount(() => {
   marker?.setMap(null)
   marker = null
   geocoder = null
+  baseLayer = null
+  satelliteLayer = null
+  roadNetLayer = null
   map?.destroy()
   map = null
 })
@@ -198,6 +229,25 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+    <div class="flex w-fit overflow-hidden rounded-full bg-white p-1 shadow-sm">
+      <button
+        type="button"
+        class="rounded-full px-3 py-1 text-xs font-semibold"
+        :class="amapLayer === 'satellite' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'"
+        @click="setAmapLayer('satellite')"
+      >
+        卫星图
+      </button>
+      <button
+        type="button"
+        class="rounded-full px-3 py-1 text-xs font-semibold"
+        :class="amapLayer === 'roadnet' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'"
+        @click="setAmapLayer('roadnet')"
+      >
+        路网图
+      </button>
+    </div>
+
     <div class="flex flex-col gap-2 sm:flex-row">
       <input
         v-model="query"

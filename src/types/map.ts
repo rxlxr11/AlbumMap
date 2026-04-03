@@ -20,6 +20,7 @@ export interface MapAdapter {
   setMarkers(markers: MarkerPoint[], onClick: (markerId: string) => void): void
   setZoomIn(): void
   setZoomOut(): void
+  setBaseLayer?: (layer: 'satellite' | 'roadnet') => void
   getViewport(): MapViewport | null
   destroy(): void
 }
