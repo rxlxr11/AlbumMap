@@ -16,9 +16,12 @@ const emit = defineEmits<{
   >
     <button class="block w-full text-left" type="button" @click="emit('open', photo.photo_id)">
       <img
-        :src="photo.thumbnail_url ?? photo.oss_url"
+        :src="photo.oss_url || photo.thumbnail_url || ''"
         :alt="photo.note ?? 'photo'"
+        :width="photo.width ?? undefined"
+        :height="photo.height ?? undefined"
         class="h-auto w-full"
+        decoding="async"
         loading="lazy"
       />
       <div class="space-y-2 px-3 py-3">

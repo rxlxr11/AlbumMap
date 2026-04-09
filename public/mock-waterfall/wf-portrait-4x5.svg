@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1500" viewBox="0 0 1200 1500" role="img" aria-label="Portrait 4:5">
+  <defs>
+    <linearGradient id="g6" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3f1d2e" />
+      <stop offset="100%" stop-color="#fb7185" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1500" fill="url(#g6)" />
+  <path d="M0 1120 C280 1000 480 1180 760 1100 C980 1040 1120 1080 1200 1060 L1200 1500 L0 1500 Z" fill="rgba(255,255,255,0.18)"/>
+  <text x="90" y="1400" font-family="'Noto Sans SC', 'PingFang SC', sans-serif" font-size="80" fill="#ffffff" opacity="0.96">4:5 竖图</text>
+</svg>

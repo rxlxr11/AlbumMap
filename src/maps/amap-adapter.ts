@@ -58,6 +58,7 @@ export class AMapAdapter implements MapAdapter {
   private baseLayer: AMapTileLayer | null = null
   private satelliteLayer: AMapTileLayer | null = null
   private roadNetLayer: AMapTileLayer | null = null
+  private satelliteLabelLayer: AMapTileLayer | null = null
 
   async init(container: HTMLElement, center: { lat: number; lng: number }, zoom: number): Promise<void> {
     const key = import.meta.env.VITE_AMAP_KEY || DEFAULT_AMAP_KEY
@@ -84,17 +85,20 @@ export class AMapAdapter implements MapAdapter {
     this.baseLayer = new this.amap.TileLayer()
     this.satelliteLayer = new this.amap.TileLayer.Satellite()
     this.roadNetLayer = new this.amap.TileLayer.RoadNet()
+    this.satelliteLabelLayer = new this.amap.TileLayer.RoadNet({ opacity: 0.35 })
     this.setBaseLayer('satellite')
   }
 
   setBaseLayer(layer: 'satellite' | 'roadnet'): void {
-    if (!this.map || !this.baseLayer || !this.satelliteLayer || !this.roadNetLayer) {
+    if (!this.map || !this.baseLayer || !this.satelliteLayer || !this.roadNetLayer || !this.satelliteLabelLayer) {
       return
     }
     if (layer === 'satellite') {
-      this.map.setLayers([this.satelliteLayer, this.roadNetLayer])
+      this.map.setLayers([])
+      this.map.setLayers([this.satelliteLayer, this.satelliteLabelLayer])
       return
     }
+    this.map.setLayers([])
     this.map.setLayers([this.baseLayer, this.roadNetLayer])
   }
 
@@ -181,5 +185,6 @@ export class AMapAdapter implements MapAdapter {
     this.baseLayer = null
     this.satelliteLayer = null
     this.roadNetLayer = null
+    this.satelliteLabelLayer = null
   }
 }

@@ -241,55 +241,87 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <aside class="absolute left-4 top-4 z-[2200] w-[min(94vw,360px)] overflow-hidden rounded-2xl border border-slate-200 bg-white/95 shadow-2xl backdrop-blur">
-      <button class="flex w-full items-center justify-between border-b border-slate-200 px-4 py-3 text-left" type="button" @click="panelCollapsed = !panelCollapsed">
+    <aside class="absolute left-4 top-4 z-[2200] w-[min(94vw,390px)] overflow-hidden rounded-3xl border border-slate-200/80 bg-white/80 shadow-[0_24px_80px_rgba(15,23,42,0.28)] backdrop-blur-xl">
+      <button
+        class="flex w-full items-center justify-between border-b border-slate-200/70 bg-gradient-to-r from-white/90 via-slate-100/70 to-white/90 px-5 py-4 text-left"
+        type="button"
+        @click="panelCollapsed = !panelCollapsed"
+      >
         <div>
-          <p class="text-xs uppercase tracking-[0.28em] text-slate-500">Control Panel</p>
-          <p class="text-sm font-semibold text-slate-900">模式与筛选</p>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.34em] text-slate-500">Control Panel</p>
+          <p class="mt-1 text-base font-semibold text-slate-900">模式与筛选</p>
         </div>
-        <span class="text-xs font-semibold text-slate-600">{{ panelCollapsed ? '展开' : '收起' }}</span>
+        <span class="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">{{ panelCollapsed ? '展开' : '收起' }}</span>
       </button>
 
-      <div v-if="!panelCollapsed" class="space-y-4 px-4 py-4">
-        <div class="space-y-2">
-          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">展示模式</p>
-          <div class="flex flex-wrap gap-2">
-            <button class="rounded-full px-3 py-1.5 text-xs font-semibold" :class="mode === 'map' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" @click="mode = 'map'">地图模式</button>
-            <button class="rounded-full px-3 py-1.5 text-xs font-semibold" :class="mode === 'waterfall' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" @click="mode = 'waterfall'">瀑布流</button>
-            <button class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-200" @click="reloadCurrentMode">刷新</button>
-            <button class="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-700" @click="openUploadModal">上传照片</button>
+      <div v-if="!panelCollapsed" class="space-y-4 bg-gradient-to-b from-white/60 via-slate-50/85 to-slate-100/70 px-5 py-5">
+        <div class="space-y-2.5">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">展示模式</p>
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              class="rounded-2xl border px-3 py-2 text-xs font-semibold transition"
+              :class="mode === 'map' ? 'border-slate-900 bg-slate-900 text-white shadow-lg shadow-slate-900/20' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'"
+              @click="mode = 'map'"
+            >
+              地图模式
+            </button>
+            <button
+              class="rounded-2xl border px-3 py-2 text-xs font-semibold transition"
+              :class="mode === 'waterfall' ? 'border-slate-900 bg-slate-900 text-white shadow-lg shadow-slate-900/20' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'"
+              @click="mode = 'waterfall'"
+            >
+              瀑布流
+            </button>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" @click="reloadCurrentMode">刷新</button>
+            <button class="rounded-2xl border border-slate-900 bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-700" @click="openUploadModal">上传照片</button>
           </div>
         </div>
 
-        <div class="space-y-2">
-          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">地图维度</p>
+        <div class="space-y-2.5">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">地图维度</p>
           <div class="flex gap-2">
-            <button class="rounded-full px-3 py-1.5 text-xs font-semibold" :class="mapDimension === '2d' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" @click="mapDimension = '2d'">2D 高德</button>
-            <button class="rounded-full px-3 py-1.5 text-xs font-semibold" :class="mapDimension === '3d' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" @click="mapDimension = '3d'">3D 地球</button>
+            <button
+              class="flex-1 rounded-2xl border px-3 py-2 text-xs font-semibold transition"
+              :class="mapDimension === '2d' ? 'border-blue-600 bg-blue-600 text-white shadow-lg shadow-blue-700/25' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'"
+              @click="mapDimension = '2d'"
+            >
+              2D 高德
+            </button>
+            <button
+              class="flex-1 rounded-2xl border px-3 py-2 text-xs font-semibold transition"
+              :class="mapDimension === '3d' ? 'border-emerald-600 bg-emerald-600 text-white shadow-lg shadow-emerald-700/25' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'"
+              @click="mapDimension = '3d'"
+            >
+              3D 地球
+            </button>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <label class="space-y-1">
-            <span class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">分类</span>
-            <select v-model="selectedCategory" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm">
-              <option value="all">全部分类</option>
-              <option v-for="category in allCategories" :key="category" :value="category">{{ category }}</option>
-            </select>
-          </label>
+        <div class="rounded-2xl border border-slate-200/80 bg-white/85 p-3.5 shadow-sm">
+          <div class="grid grid-cols-2 gap-3">
+            <label class="space-y-1">
+              <span class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">分类</span>
+              <select v-model="selectedCategory" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-slate-400 focus:outline-none">
+                <option value="all">全部分类</option>
+                <option v-for="category in allCategories" :key="category" :value="category">{{ category }}</option>
+              </select>
+            </label>
 
-          <label class="space-y-1">
-            <span class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">标签</span>
-            <select v-model="selectedTag" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm">
-              <option value="all">全部标签</option>
-              <option v-for="tag in allTags" :key="tag" :value="tag">{{ tag }}</option>
-            </select>
-          </label>
+            <label class="space-y-1">
+              <span class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">标签</span>
+              <select v-model="selectedTag" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-slate-400 focus:outline-none">
+                <option value="all">全部标签</option>
+                <option v-for="tag in allTags" :key="tag" :value="tag">{{ tag }}</option>
+              </select>
+            </label>
+          </div>
         </div>
 
-        <div class="flex items-center justify-between">
-          <p class="text-xs text-slate-500">当前结果：{{ isMapMode ? filteredMarkers.length : filteredPhotos.length }}</p>
-          <button class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-200" @click="resetFilters">重置筛选</button>
+        <div class="flex items-center justify-between rounded-2xl border border-slate-200/80 bg-white/85 px-3.5 py-2.5 shadow-sm">
+          <p class="text-xs font-medium text-slate-600">当前结果：<span class="font-semibold text-slate-900">{{ isMapMode ? filteredMarkers.length : filteredPhotos.length }}</span></p>
+          <button class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" @click="resetFilters">重置筛选</button>
         </div>
       </div>
     </aside>

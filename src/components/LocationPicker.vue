@@ -82,16 +82,19 @@ let geocoder: AMapGeocoder | null = null
 let baseLayer: AMapTileLayer | null = null
 let satelliteLayer: AMapTileLayer | null = null
 let roadNetLayer: AMapTileLayer | null = null
+let satelliteLabelLayer: AMapTileLayer | null = null
 
 function setAmapLayer(layer: 'satellite' | 'roadnet'): void {
   amapLayer.value = layer
-  if (!map || !baseLayer || !satelliteLayer || !roadNetLayer) {
+  if (!map || !baseLayer || !satelliteLayer || !roadNetLayer || !satelliteLabelLayer) {
     return
   }
   if (layer === 'satellite') {
-    map.setLayers([satelliteLayer, roadNetLayer])
+    map.setLayers([])
+    map.setLayers([satelliteLayer, satelliteLabelLayer])
     return
   }
+  map.setLayers([])
   map.setLayers([baseLayer, roadNetLayer])
 }
 
@@ -191,6 +194,7 @@ onMounted(async () => {
   baseLayer = new amap.TileLayer()
   satelliteLayer = new amap.TileLayer.Satellite()
   roadNetLayer = new amap.TileLayer.RoadNet()
+  satelliteLabelLayer = new amap.TileLayer.RoadNet({ opacity: 0.35 })
   setAmapLayer('satellite')
   marker = new amap.Marker({ position: [props.longitude, props.latitude], map })
   geocoder = new amap.Geocoder({ city: '全国', radius: 1500, extensions: 'all' })
@@ -222,6 +226,7 @@ onBeforeUnmount(() => {
   baseLayer = null
   satelliteLayer = null
   roadNetLayer = null
+  satelliteLabelLayer = null
   map?.destroy()
   map = null
 })

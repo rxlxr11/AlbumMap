@@ -16,3 +16,9 @@ body {
 #app {
   min-height: 100vh;
 }
+
+.amap-logo,
+.amap-copyright,
+.cesium-widget-credits {
+  display: none !important;
+}

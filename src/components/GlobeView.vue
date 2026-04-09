@@ -205,6 +205,10 @@ onMounted(() => {
     viewer.scene.globe.enableLighting = false
 
     viewer.scene.backgroundColor = Color.fromCssColorString('#020617')
+    const creditContainer = viewer.cesiumWidget.creditContainer
+    if (creditContainer instanceof HTMLElement) {
+      creditContainer.style.display = 'none'
+    }
     viewer.camera.flyTo({
       destination: Cartesian3.fromDegrees(103, 30, 23000000),
       duration: 0,
